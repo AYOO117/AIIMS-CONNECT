@@ -9,8 +9,7 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
-import { Entypo } from "@expo/vector-icons";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,

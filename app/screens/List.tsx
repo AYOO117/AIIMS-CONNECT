@@ -11,7 +11,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Entypo, Ionicons } from "@expo/vector-icons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
-
 import { NavigationProp } from "@react-navigation/native";
 
 export default function index({

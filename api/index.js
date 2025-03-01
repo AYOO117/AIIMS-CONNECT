@@ -7,9 +7,9 @@ const PORT = 8000;
 
 // Middleware
 app.use(cors());
-app.use(express.json()); // Use built-in JSON parser
+app.use(express.json());
 
-// MongoDB Connection (Hardcoded)
+// MongoDB Connection (Atlas)
 mongoose
   .connect(
     "mongodb+srv://ayush117:ayush117@cluster1.zi0br.mongodb.net/AIIMS-CONN",
@@ -35,7 +35,6 @@ app.post("/register", async (req, res) => {
       ward,
       referringPhysician,
     } = req.body;
-
     const newPatient = new Patient({
       PatientId,
       PatientName,
@@ -44,7 +43,6 @@ app.post("/register", async (req, res) => {
       ward,
       referringPhysician,
     });
-
     await newPatient.save();
     res
       .status(201)
@@ -66,35 +64,73 @@ app.get("/patients", async (req, res) => {
   }
 });
 
-// Save checklist data
-const Checklist = require("./models/CheckList");
+//////////////////////////////////////////////////
+///////////Procedure Planning////////////////////
+////////////////////////////////////////////////
+// Import Procedure Planning Model
+const ProcedurePlanningModel = require("./models/procedurePlanning");
 
-app.post("/saveChecklist", async (req, res) => {
+// Fetch Procedure Planning by Patient ID
+app.get("/getProcedurePlanning/:patientId", async (req, res) => {
   try {
-    const newChecklist = new Checklist(req.body);
-    await newChecklist.save();
-    res.status(201).json({ message: "Checklist saved successfully" });
-  } catch (error) {
-    console.error("❌ Error saving checklist:", error);
-    res.status(500).json({ message: "Server Error" });
-  }
-});
-
-// Fetch all checklists
-app.get("/getChecklist/:patientId", async (req, res) => {
-  try {
-    const checklist = await Checklist.findOne({
-      patientId: req.params.patientId,
+    const { patientId } = req.params;
+    const procedurePlanning = await ProcedurePlanningModel.findOne({
+      patientId,
     });
-    if (!checklist) {
-      return res.status(404).json({ message: "Checklist not found" });
+
+    if (!procedurePlanning) {
+      return res.status(404).json({ message: "Procedure planning not found" });
     }
-    res.status(200).json(checklist);
+
+    res.status(200).json(procedurePlanning);
   } catch (error) {
-    console.error("❌ Error fetching checklist:", error);
-    res.status(500).json({ message: "Server Error" });
+    console.error("❌ Backend error fetching procedure planning:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
+// Create or Update Procedure Planning Data
+app.put("/updateProcedurePlanning/:patientId", async (req, res) => {
+  try {
+    const { patientId } = req.params;
+    const { procedurePlanning, nurseName, nurseSignature } = req.body;
+
+    const existingEntry = await ProcedurePlanningModel.findOne({ patientId });
+
+    if (existingEntry) {
+      // Update existing entry
+      await ProcedurePlanningModel.updateOne(
+        { patientId },
+        { $set: { procedurePlanning, nurseName, nurseSignature } }
+      );
+      return res
+        .status(200)
+        .json({ message: "✅ Procedure Planning updated successfully" });
+    } else {
+      // Create new entry if not found
+      const newEntry = new ProcedurePlanningModel({
+        patientId,
+        procedurePlanning,
+        nurseName,
+        nurseSignature,
+      });
+      await newEntry.save();
+      return res
+        .status(201)
+        .json({ message: "✅ Procedure Planning created successfully" });
+    }
+  } catch (error) {
+    console.error("❌ Error saving procedure planning:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+//////////////////////////////////////////////////
+//////////////////Sign In////////////////////////
+////////////////////////////////////////////////
+
+//////////////////////////////////////////////////
+/////////////////Sign Out////////////////////////
+////////////////////////////////////////////////
 // Start Server
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

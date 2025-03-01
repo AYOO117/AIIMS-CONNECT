@@ -40,9 +40,9 @@ const ChecklistSchema = new mongoose.Schema({
     followUpAppointment: Boolean,
     resultsCommunicated: Boolean,
   },
-  nurseName: { type: String, required: true },
-  nurseSignature: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now },
+  nurseName: { type: String },
+  nurseSignature: { type: String },
+  // createdAt: { type: Date, default: Date.now },
 });
 
 const Checklist = mongoose.model("Checklist", ChecklistSchema);
