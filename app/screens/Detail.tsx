@@ -43,6 +43,7 @@ const Detail = () => {
           <Text style={styles.label}>
             Referring Physician: {patient.referringPhysician}
           </Text>
+          <Text style={styles.label}> createdAt: {patient.createdAt}</Text>
 
           <View style={styles.cardContainer}>
             <Pressable

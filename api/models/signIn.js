@@ -15,3 +15,5 @@ const signInSchema = new mongoose.Schema({
     consentDiscussed: Boolean,
   },
 });
+const SignInModel = mongoose.model("SignIn", signInSchema);
+module.exports = SignInModel;

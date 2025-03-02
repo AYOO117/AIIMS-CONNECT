@@ -128,9 +128,123 @@ app.put("/updateProcedurePlanning/:patientId", async (req, res) => {
 //////////////////////////////////////////////////
 //////////////////Sign In////////////////////////
 ////////////////////////////////////////////////
+const SignInModal = require("./models/signIn");
+
+// Fetch Procedure Planning by Patient ID
+app.get("/getSignIn/:patientId", async (req, res) => {
+  try {
+    const { patientId } = req.params;
+    const signIn = await SignInModal.findOne({
+      patientId,
+    });
+
+    if (!signIn) {
+      return res.status(404).json({ message: "Sign In not found" });
+    }
+
+    res.status(200).json(signIn);
+  } catch (error) {
+    console.error("❌ Backend error fetching  sign In:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+// Create or Update Sign Ing Data
+app.put("/updateSignIn/:patientId", async (req, res) => {
+  try {
+    const { patientId } = req.params;
+    const { signIn, nurseName, nurseSignature } = req.body;
+
+    const existingEntry = await SignInModal.findOne({ patientId });
+
+    if (existingEntry) {
+      // Update existing entry
+      await SignInModal.updateOne(
+        { patientId },
+        { $set: { signIn, nurseName, nurseSignature } }
+      );
+      return res
+        .status(200)
+        .json({ message: "✅ Sign In updated successfully" });
+    } else {
+      // Create new entry if not found
+      const newEntry = new SignInModal({
+        patientId,
+        signIn,
+        nurseName,
+        nurseSignature,
+      });
+      await newEntry.save();
+      return res
+        .status(201)
+        .json({ message: "✅ Procedure Planning created successfully" });
+    }
+  } catch (error) {
+    console.error("❌ Error saving Sign In:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 //////////////////////////////////////////////////
 /////////////////Sign Out////////////////////////
 ////////////////////////////////////////////////
+
+const SignOutModel = require("./models/signOut");
+
+// Fetch Sign Out by Patient ID
+app.get("/getSignOut/:patientId", async (req, res) => {
+  try {
+    const { patientId } = req.params;
+    const signOut = await SignOutModel.findOne({
+      patientId,
+    });
+
+    if (!signOut) {
+      return res.status(404).json({ message: "Sign Out not found" });
+    }
+
+    res.status(200).json({ signOut: signOutData.signOut || {} }); // ✅ Ensure correct key
+  } catch (error) {
+    console.error("❌ Backend error fetching Sign Out:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+// Create or Update Sign Out Data
+app.put("/updateSignOut/:patientId", async (req, res) => {
+  try {
+    const { patientId } = req.params;
+    const { signOut, nurseName, nurseSignature } = req.body;
+
+    const existingEntry = await SignOutModel.findOne({ patientId });
+
+    if (existingEntry) {
+      // Update existing entry
+      await SignOutModel.updateOne(
+        { patientId },
+        { $set: { signOut, nurseName, nurseSignature } }
+      );
+      return res
+        .status(200)
+        .json({ message: "✅ Sign Out updated successfully" });
+    } else {
+      // Create new entry if not found
+      const newEntry = new SignOutModel({
+        patientId,
+        signOut,
+        nurseName,
+        nurseSignature,
+      });
+      await newEntry.save();
+      return res
+        .status(201)
+        .json({ message: "✅ Sign Out created successfully" });
+    }
+  } catch (error) {
+    console.error("❌ Error saving Sign Out:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 // Start Server
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const signOutSchema = new mongoose.Schema({
   patientId: { type: String, required: true },
-  procedurePlanning: {
+  signOut: {
     postOpNoteWritten: Boolean,
     vitalSignsNormal: Boolean,
     medicationRecorded: Boolean,
@@ -15,3 +15,5 @@ const signOutSchema = new mongoose.Schema({
     resultsCommunicated: Boolean,
   },
 });
+const SignOutModel = mongoose.model("SignOut", signOutSchema);
+module.exports = SignOutModel;

@@ -9,6 +9,8 @@ import Detail from "./app/screens/Detail";
 import PatientList from "./app/screens/PatientList";
 import ReadyForOT from "./app/screens/ReadyForOT";
 import ProcedurePlanningForm from "./app/screens/ProcedurePlanningForm";
+import SignInForm from "./app/screens/SignInForm";
+import SignOutForm from "./app/screens/SignOutForm";
 import { RootStackParamList } from "./types";
 // Define the type for navigation params
 
@@ -26,11 +28,8 @@ function InsideLayout() {
         name="ProcedurePlanningForm"
         component={ProcedurePlanningForm}
       />
-      <InsideStack.Screen name="SignInForm" component={ProcedurePlanningForm} />
-      <InsideStack.Screen
-        name="SignOutForm"
-        component={ProcedurePlanningForm}
-      />
+      <InsideStack.Screen name="SignInForm" component={SignInForm} />
+      <InsideStack.Screen name="SignOutForm" component={SignOutForm} />
     </InsideStack.Navigator>
   );
 }
