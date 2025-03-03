@@ -13,7 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import { Patient } from "../../types"; // ✅ Import Patient type from types.ts
-const API_URL = "http://192.168.1.5:8000"; // Update with your actual backend URL
+const API_URL = "http://10.10.0.59:8000"; // Update with your actual backend URL
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../types"; // Adjust the import path based on your project structure
 

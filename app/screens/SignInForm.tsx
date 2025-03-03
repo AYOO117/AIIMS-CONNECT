@@ -10,7 +10,6 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import Checkbox from "expo-checkbox";
 import axios from "axios";
 
 interface SignInScreenProps {
@@ -18,24 +17,26 @@ interface SignInScreenProps {
   route: any;
 }
 
-const API_URL = "http://192.168.1.5:8000";
+const API_URL = "http://10.10.0.59:8000";
 
 const SignInScreen: React.FC<SignInScreenProps> = ({ navigation, route }) => {
   const { patientId } = route.params;
 
-  const [signIn, setSignIn] = useState<Record<string, boolean>>({
-    teamIntroduced: false,
-    allRecordsWithPatient: false,
-    correctPatientSide: false,
-    patientFasting: false,
-    ivAccess: false,
-    monitoringEquipment: false,
-    labTestsChecked: false,
-    allergiesChecked: false,
-    antibioticsAdministered: false,
-    consentDiscussed: false,
+  const [signIn, setSignIn] = useState<Record<string, string>>({
+    teamIntroduced: "N/A",
+    allRecordsWithPatient: "N/A",
+    correctPatientSide: "N/A",
+    patientFasting: "N/A",
+    ivAccess: "N/A",
+    monitoringEquipment: "N/A",
+    labTestsChecked: "N/A",
+    allergiesChecked: "N/A",
+    antibioticsAdministered: "N/A",
+    consentDiscussed: "N/A",
   });
 
+  const [nurseName, setNurseName] = useState("");
+  const [nurseSignature, setNurseSignature] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -44,7 +45,10 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ navigation, route }) => {
         const response = await axios.get(`${API_URL}/getSignIn/${patientId}`);
         if (response.data) {
           setSignIn(response.data.signIn || {});
+          setNurseName(response.data.nurseName || "");
+          setNurseSignature(response.data.nurseSignature || "");
         }
+        console.log("fetching sign-out data...");
       } catch (error) {
         console.error("❌ Error fetching sign-in data:", error);
       } finally {
@@ -56,7 +60,11 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ navigation, route }) => {
 
   const saveSignIn = async () => {
     try {
-      await axios.put(`${API_URL}/updateSignIn/${patientId}`, { signIn });
+      await axios.put(`${API_URL}/updateSignIn/${patientId}`, {
+        signIn,
+        nurseName,
+        nurseSignature,
+      });
       alert("✅ Sign-In updated successfully!");
       navigation.goBack();
     } catch (error) {
@@ -81,20 +89,51 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ navigation, route }) => {
       >
         <ScrollView keyboardShouldPersistTaps="handled">
           {Object.keys(signIn).map((key) => (
-            <View key={key} style={styles.checkboxContainer}>
-              <Checkbox
-                value={signIn[key]}
-                onValueChange={() =>
-                  setSignIn((prev) => ({
-                    ...prev,
-                    [key]: !prev[key],
-                  }))
-                }
-                color={signIn[key] ? "#4CAF50" : undefined}
-              />
-              <Text style={styles.checkboxLabel}>{key}</Text>
+            <View key={key} style={styles.rowContainer}>
+              <Text style={styles.label}>{key}</Text>
+              <View style={styles.buttonGroup}>
+                {["YES", "NO", "N/A"].map((option) => (
+                  <Pressable
+                    key={option}
+                    style={[
+                      styles.optionButton,
+                      signIn[key] === option && styles.selectedOption,
+                    ]}
+                    onPress={() =>
+                      setSignIn((prev) => ({
+                        ...prev,
+                        [key]: option,
+                      }))
+                    }
+                  >
+                    <Text
+                      style={
+                        signIn[key] === option
+                          ? styles.selectedText
+                          : styles.optionText
+                      }
+                    >
+                      {option}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
             </View>
           ))}
+          <Text style={styles.label}>Nurse Name:</Text>
+          <TextInput
+            style={styles.input}
+            value={nurseName}
+            onChangeText={setNurseName}
+            placeholder="Enter nurse name"
+          />
+          <Text style={styles.label}>Nurse Signature:</Text>
+          <TextInput
+            style={styles.input}
+            value={nurseSignature}
+            onChangeText={setNurseSignature}
+            placeholder="Enter nurse signature"
+          />
         </ScrollView>
       </KeyboardAvoidingView>
       <Pressable onPress={saveSignIn} style={styles.saveButton}>
@@ -126,17 +165,57 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: "center",
   },
-  checkboxContainer: {
+  rowContainer: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     marginVertical: 5,
   },
-  checkboxLabel: {
-    marginLeft: 10,
+  label: {
+    flex: 1,
     fontSize: 16,
+  },
+  buttonGroup: {
+    flexDirection: "row",
+  },
+  optionButton: {
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    marginHorizontal: 2,
+  },
+  selectedOption: {
+    backgroundColor: "#4CAF50",
+    borderColor: "#4CAF50",
+  },
+  optionText: {
+    fontSize: 14,
+    color: "#333",
+  },
+  selectedText: {
+    fontSize: 14,
+    color: "white",
+  },
+  input: {
+    height: 50,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 12,
+    width: "100%",
   },
   saveButton: {
     backgroundColor: "#4CAF50",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  closeButton: {
+    backgroundColor: "#D32F2F",
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
@@ -146,13 +225,6 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
-  },
-  closeButton: {
-    backgroundColor: "#D32F2F",
-    padding: 15,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 10,
   },
   closeButtonText: {
     color: "white",

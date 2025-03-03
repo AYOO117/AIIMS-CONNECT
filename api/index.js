@@ -203,7 +203,7 @@ app.get("/getSignOut/:patientId", async (req, res) => {
       return res.status(404).json({ message: "Sign Out not found" });
     }
 
-    res.status(200).json({ signOut: signOutData.signOut || {} }); // ✅ Ensure correct key
+    res.status(200).json(signOut);
   } catch (error) {
     console.error("❌ Backend error fetching Sign Out:", error);
     res.status(500).json({ message: "Internal Server Error" });
