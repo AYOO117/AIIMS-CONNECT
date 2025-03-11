@@ -15,11 +15,16 @@ import axios from "axios";
 interface SignInScreenProps {
   navigation: any;
   route: any;
+  userRole: string | null;
 }
 
-const API_URL = "http://10.10.0.59:8000";
+const API_URL = "http://192.168.198.119:8000";
 
-const SignInScreen: React.FC<SignInScreenProps> = ({ navigation, route }) => {
+const SignInScreen: React.FC<SignInScreenProps> = ({
+  navigation,
+  route,
+  userRole,
+}) => {
   const { patientId } = route.params;
 
   const [signIn, setSignIn] = useState<Record<string, string>>({
@@ -98,13 +103,14 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ navigation, route }) => {
                     style={[
                       styles.optionButton,
                       signIn[key] === option && styles.selectedOption,
+                      userRole === "doctor" && styles.disabledButton,
                     ]}
-                    onPress={() =>
-                      setSignIn((prev) => ({
-                        ...prev,
-                        [key]: option,
-                      }))
-                    }
+                    onPress={() => {
+                      if (userRole !== "doctor") {
+                        setSignIn((prev) => ({ ...prev, [key]: option }));
+                      }
+                    }}
+                    disabled={userRole === "doctor"} // Prevent clicking for doctors
                   >
                     <Text
                       style={
@@ -122,23 +128,36 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ navigation, route }) => {
           ))}
           <Text style={styles.label}>Nurse Name:</Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              userRole === "doctor" && styles.disabledInput,
+            ]} // Disable for doctors
             value={nurseName}
             onChangeText={setNurseName}
             placeholder="Enter nurse name"
+            editable={userRole !== "doctor"} // Prevent typing for doctors
           />
           <Text style={styles.label}>Nurse Signature:</Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              userRole === "doctor" && styles.disabledInput,
+            ]} // Disable for doctors
             value={nurseSignature}
             onChangeText={setNurseSignature}
             placeholder="Enter nurse signature"
+            editable={userRole !== "doctor"} // Prevent typing for doctors
           />
         </ScrollView>
       </KeyboardAvoidingView>
-      <Pressable onPress={saveSignIn} style={styles.saveButton}>
-        <Text style={styles.saveButtonText}>Save</Text>
-      </Pressable>
+
+      {/* ✅ Hide Save Button for Doctors */}
+      {userRole !== "doctor" && (
+        <Pressable onPress={saveSignIn} style={styles.saveButton}>
+          <Text style={styles.saveButtonText}>Save</Text>
+        </Pressable>
+      )}
+
       <Pressable onPress={() => navigation.goBack()} style={styles.closeButton}>
         <Text style={styles.closeButtonText}>Close</Text>
       </Pressable>
@@ -230,5 +249,13 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  disabledInput: {
+    backgroundColor: "#e0e0e0",
+    color: "#a0a0a0",
+  },
+  disabledButton: {
+    backgroundColor: "#d3d3d3",
+    borderColor: "#a0a0a0",
   },
 });

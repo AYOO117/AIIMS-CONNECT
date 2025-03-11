@@ -17,25 +17,29 @@ import { RootStackParamList } from "./types";
 const Stack = createNativeStackNavigator();
 const InsideStack = createNativeStackNavigator<RootStackParamList>(); // ✅ Correctly typed
 
-function InsideLayout() {
+function InsideLayout({ userRole }: { userRole: any }) {
   return (
     <InsideStack.Navigator screenOptions={{ headerShown: false }}>
       <InsideStack.Screen name="List" component={List} />
       <InsideStack.Screen name="Detail" component={Detail} />
       <InsideStack.Screen name="PatientList" component={PatientList} />
       <InsideStack.Screen name="ReadyForOT" component={ReadyForOT} />
-      <InsideStack.Screen
-        name="ProcedurePlanningForm"
-        component={ProcedurePlanningForm}
-      />
-      <InsideStack.Screen name="SignInForm" component={SignInForm} />
-      <InsideStack.Screen name="SignOutForm" component={SignOutForm} />
+      <InsideStack.Screen name="ProcedurePlanningForm">
+        {(props) => <ProcedurePlanningForm {...props} userRole={userRole} />}
+      </InsideStack.Screen>
+      <InsideStack.Screen name="SignInForm">
+        {(props) => <SignInForm {...props} userRole={userRole} />}
+      </InsideStack.Screen>
+      <InsideStack.Screen name="SignOutForm">
+        {(props) => <SignOutForm {...props} userRole={userRole} />}
+      </InsideStack.Screen>
     </InsideStack.Navigator>
   );
 }
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
+  const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
     onAuthStateChanged(FIREBASE_AUTH, (user) => {
@@ -48,11 +52,9 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
         {user ? (
-          <Stack.Screen
-            name="Inside"
-            component={InsideLayout}
-            options={{ headerShown: false }}
-          />
+          <Stack.Screen name="Inside" options={{ headerShown: false }}>
+            {(props) => <InsideLayout {...props} userRole={userRole} />}
+          </Stack.Screen>
         ) : (
           <Stack.Screen
             name="Login"

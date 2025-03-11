@@ -13,7 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import { Patient } from "../../types"; // ✅ Import Patient type from types.ts
-const API_URL = "http://10.10.0.59:8000"; // Update with your actual backend URL
+const API_URL = "http://192.168.198.119:8000";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../types"; // Adjust the import path based on your project structure
 
@@ -23,6 +23,7 @@ type PatientListScreenNavigationProp = StackNavigationProp<
 >;
 
 const PatientList = () => {
+  const userRole = "doctor"; // Define userRole variable
   const navigation = useNavigation<PatientListScreenNavigationProp>();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -180,9 +181,14 @@ const PatientList = () => {
             />
 
             <View style={styles.modalButtons}>
-              <Pressable style={styles.addButton} onPress={handleAddPatient}>
+              {userRole !== "doctor" && (
+                <Pressable onPress={handleAddPatient} style={styles.addButton}>
+                  <Text style={styles.buttonText}>+ Add Patient</Text>
+                </Pressable>
+              )}
+              {/* <Pressable style={styles.addButton} onPress={handleAddPatient}>
                 <Text style={styles.buttonText}>Add Patient</Text>
-              </Pressable>
+              </Pressable> */}
               <Pressable
                 style={styles.cancelButton}
                 onPress={() => setModalVisible(false)}

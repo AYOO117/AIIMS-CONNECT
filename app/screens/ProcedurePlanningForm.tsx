@@ -15,13 +15,15 @@ import axios from "axios";
 interface ProcedurePlanningScreenProps {
   navigation: any;
   route: any;
+  userRole: string | null;
 }
 
-const API_URL = "http://10.10.0.59:8000"; // Update with actual backend URL
+const API_URL = "http://192.168.198.119:8000";
 
 const ProcedurePlanningScreen: React.FC<ProcedurePlanningScreenProps> = ({
   navigation,
   route,
+  userRole,
 }) => {
   const { patientId } = route.params; // Get patientId from navigation params
 
@@ -112,13 +114,17 @@ const ProcedurePlanningScreen: React.FC<ProcedurePlanningScreenProps> = ({
                       styles.optionButton,
                       procedurePlanning[key] === option &&
                         styles.selectedOption,
+                      userRole === "doctor" && styles.disabledOption, // Disable for doctors
                     ]}
-                    onPress={() =>
-                      setProcedurePlanning((prev) => ({
-                        ...prev,
-                        [key]: option,
-                      }))
-                    }
+                    onPress={() => {
+                      if (userRole !== "doctor") {
+                        setProcedurePlanning((prev) => ({
+                          ...prev,
+                          [key]: option,
+                        }));
+                      }
+                    }}
+                    disabled={userRole === "doctor"} // Prevent clicking for doctors
                   >
                     <Text
                       style={
@@ -136,31 +142,42 @@ const ProcedurePlanningScreen: React.FC<ProcedurePlanningScreenProps> = ({
           ))}
           <Text style={styles.label}>Nurse Name:</Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              userRole === "doctor" && styles.disabledInput,
+            ]} // Disable for doctors
             value={nurseName}
             onChangeText={setNurseName}
             placeholder="Enter nurse name"
+            editable={userRole !== "doctor"} // Prevent typing for doctors
           />
           <Text style={styles.label}>Nurse Signature:</Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              userRole === "doctor" && styles.disabledInput,
+            ]} // Disable for doctors
             value={nurseSignature}
             onChangeText={setNurseSignature}
             placeholder="Enter nurse signature"
+            editable={userRole !== "doctor"} // Prevent typing for doctors
           />
         </ScrollView>
       </KeyboardAvoidingView>
 
-      <Pressable onPress={saveProcedurePlanning} style={styles.saveButton}>
-        <Text style={styles.saveButtonText}>Save</Text>
-      </Pressable>
+      {/* ✅ Hide Save Button for Doctors */}
+      {userRole !== "doctor" && (
+        <Pressable onPress={saveProcedurePlanning} style={styles.saveButton}>
+          <Text style={styles.saveButtonText}>Save</Text>
+        </Pressable>
+      )}
+
       <Pressable onPress={() => navigation.goBack()} style={styles.closeButton}>
         <Text style={styles.closeButtonText}>Close</Text>
       </Pressable>
     </View>
   );
 };
-
 export default ProcedurePlanningScreen;
 
 const styles = StyleSheet.create({
@@ -245,5 +262,13 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  disabledInput: {
+    backgroundColor: "#e0e0e0", // Light grey
+    color: "#777", // Darker grey text
+  },
+
+  disabledOption: {
+    opacity: 0.5, // Make buttons faded for doctors
   },
 });
